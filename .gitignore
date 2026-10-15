@@ -1,3 +1,13 @@
+# Go binaries and local runtime state
+bin/
+dist/
+*.exe
+*.test
+*.out
+coverage.out
+tasks.db
+tasks.db-*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
