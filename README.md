@@ -147,9 +147,33 @@ Run the locally built program:
 ./bin/task list
 ```
 
+To use the shorter `task` command without installing it, add the project's `bin` directory to your current shell's `PATH`:
+
+```sh
+export PATH="$PWD/bin:$PATH"
+task list
+```
+
+This lasts only for the current terminal session. To make it permanent, add the same `export PATH=...` line to your shell startup file, such as `~/.bashrc` or `~/.zshrc`, then open a new terminal.
+
 ```powershell
 .\bin\task.exe list
 ```
+
+In Windows PowerShell, use the local executable directly:
+
+```powershell
+.\bin\task.exe list
+```
+
+To use `task` in the current PowerShell session:
+
+```powershell
+$env:Path = "$PWD\bin;$env:Path"
+task.exe list
+```
+
+For a permanent Windows PATH entry, add the full project `bin` directory through **System Settings → Environment Variables → Path**, then open a new terminal.
 
 ## Install and uninstall
 
@@ -160,6 +184,41 @@ go install ./cmd/task
 ```
 
 Make sure the directory printed by `go env GOBIN` or `go env GOPATH` plus `/bin` is on your `PATH`.
+
+For zsh on Linux/macOS, the usual setup is:
+
+```sh
+export PATH="$(go env GOPATH)/bin:$PATH"
+rehash
+task --help
+```
+
+To make this permanent for future zsh sessions:
+
+```sh
+echo 'export PATH="$(go env GOPATH)/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+rehash
+```
+
+Verify the installation location with:
+
+```sh
+command -v task
+ls "$(go env GOPATH)/bin/task"
+```
+
+After that, you can run the program from any directory:
+
+```sh
+task list
+```
+
+On Windows PowerShell:
+
+```powershell
+task.exe list
+```
 
 On Linux and macOS, remove the installed program with:
 
