@@ -9,6 +9,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/kevinforsgren/opentask/internal/config"
 	"github.com/kevinforsgren/opentask/internal/storage"
 	"github.com/kevinforsgren/opentask/internal/task"
 	"github.com/kevinforsgren/opentask/internal/ui"
@@ -40,25 +41,21 @@ func newRootCommand(ctx context.Context) *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
-			if dbPath == "" {
-				dbPath = os.Getenv("TASK_DB_PATH")
-			}
-			if dbPath == "" {
-				dbPath = "tasks.db"
-			}
-			db, err := storage.Open(ctx, dbPath)
+			resolvedPath, err := config.ResolveDatabasePath(dbPath)
 			if err != nil {
 				return err
 			}
-			cmd.Context()
-			app = appContext{service: task.NewService(storage.NewTaskRepository(db)), styles: ui.NewStyles(noColor), dbPath: dbPath}
+			db, err := storage.Open(cmd.Context(), resolvedPath)
+			if err != nil {
+				return err
+			}
+			app = appContext{service: task.NewService(storage.NewTaskRepository(db)), styles: ui.NewStyles(noColor), dbPath: resolvedPath}
 			return nil
 		},
 	}
-	root.PersistentFlags().StringVar(&dbPath, "db", "", "database path (default: TASK_DB_PATH or ./tasks.db)")
+	root.PersistentFlags().StringVar(&dbPath, "db", "", "database path (overrides TASK_DB_PATH and .env)")
 	root.PersistentFlags().BoolVar(&noColor, "no-color", false, "disable color and styling")
 	root.AddCommand(newAddCommand(), newListCommand(), newUpdateCommand(), newDoneCommand(), newToggleCommand(), newDeleteCommand(), newDashboardCommand())
-	_ = ctx
 	return root
 }
 
